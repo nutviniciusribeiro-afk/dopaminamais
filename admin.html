@@ -1037,6 +1037,11 @@ function logout(){localStorage.removeItem('nq_admin_ok');location.reload();}
 // NAVIGATION
 // ============================================================
 const TITLES={dash:'Visão Inicial',patients:'Pacientes',fin:'Financeiro',pag:'Pagamentos',gam:'XP & Pontuação',grad:'Graduação das Faixas',rankings:'Rankings',ofensiva:'Ofensivas',protection:'Proteção de Ofensiva',events:'Desafios Avulsos',desafios:'Desafios Avulsos',rankings_desafios:'Ranking dos Desafios',hall:'Hall da Fama',ind:'Programa de Indicação',ranking_ind:'Ranking de Indicações',recompensas:'Recompensas',parceiros:'Parceiros e Benefícios',wpp_central:'Central de Mensagens WhatsApp',wpp_automacoes:'Automações WhatsApp',wpp_agendados:'Mensagens Agendadas',wpp_historico:'Histórico de Mensagens',cfg_missions:'Missões',cfg_missions_rules:'Regras da Gamificação',cfg_belts:'Faixas & Benefícios',cfg_trophies:'Gerenciar Troféus',cfg_motivs:'Frases Motivacionais',cfg_automacoes:'Automações do Sistema',cfg_journey:'Jornada 90 dias',cfg_general:'Configurações Gerais',alertas_adesao:'Alertas de Adesão'};
+function debounce(fn,ms){let t;return function(...a){clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms);}}
+const _dRenderPats=debounce(()=>renderPats(),250);
+const _dRenderInd=debounce(()=>renderInd(),250);
+const _dRenderRank=debounce(()=>renderRankings(),250);
+const _dRenderAlertas=debounce(()=>renderAlertasAdesao(),250);
 const RENDERS={dash:renderDash,patients:renderPats,fin:renderFin,pag:renderPag,gam:renderGam,grad:renderGrad,rankings:renderRankings,ofensiva:renderOfensiva,protection:renderProtection,events:renderDesafios,desafios:renderDesafios,rankings_desafios:renderRankingsDesafios,hall:renderHall,ind:renderInd,ranking_ind:renderRankingInd,recompensas:renderRecompensas,parceiros:renderParceiros,wpp_central:renderWppCentral,wpp_automacoes:renderWppAutomacoes,wpp_agendados:renderWppAgendados,wpp_historico:renderWppHistorico,cfg_missions:renderCfgMissions,cfg_missions_rules:renderCfgRules,cfg_belts:renderCfgBelts,cfg_trophies:renderCfgTrophies,cfg_motivs:renderCfgMotivs,cfg_automacoes:renderCfgAutomacoes,cfg_journey:renderCfgJourney,cfg_general:renderCfgGeneral,alertas_adesao:renderAlertasAdesao};
 
 function go(name){
@@ -1333,7 +1338,7 @@ function renderPats(){
   const pags=Array.from({length:Math.ceil(tot/pp)},(_,i)=>`<button class="pb${i===patPage?' on':''}" onclick="setPage(${i})">${i+1}</button>`).join('');
   document.getElementById('patsC').innerHTML=`
     <div class="ttbar">
-      <div class="tsearch"><i class="ti ti-search" style="color:var(--text3)"></i><input type="text" value="${patSearch}" placeholder="Buscar por nome ou celular..." oninput="patSearch=this.value;patPage=0;renderPats()"></div>
+      <div class="tsearch"><i class="ti ti-search" style="color:var(--text3)"></i><input type="text" value="${patSearch}" placeholder="Buscar por nome ou celular..." oninput="patSearch=this.value;patPage=0;_dRenderPats()"></div>
       <select class="tsel" onchange="patFilter=this.value;patPage=0;renderPats()">
         <option value="todos" ${patFilter==='todos'?'selected':''}>Todos</option>
         <option value="ativos" ${patFilter==='ativos'?'selected':''}>Ativos</option>
@@ -1969,7 +1974,7 @@ function renderInd(){
     <div>
       <!-- SEARCH + TABS -->
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
-        <div class="tsearch" style="flex:1;min-width:180px"><i class="ti ti-search" style="color:var(--text3)"></i><input type="text" placeholder="Buscar paciente ou indicado..." oninput="_indSearch=this.value;renderInd()"></div>
+        <div class="tsearch" style="flex:1;min-width:180px"><i class="ti ti-search" style="color:var(--text3)"></i><input type="text" placeholder="Buscar paciente ou indicado..." oninput="_indSearch=this.value;_dRenderInd()"></div>
         <button onclick="abrirModalNovaInd()" style="padding:7px 13px;background:var(--g600);color:#fff;border:none;border-radius:9px;font-size:12px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:5px"><i class="ti ti-plus"></i>Nova indicação</button>
       </div>
       <div style="display:flex;gap:7px;margin-bottom:12px;overflow-x:auto;padding-bottom:3px">${tabBtns}</div>
@@ -2492,7 +2497,7 @@ function renderRankings(){
   <div style="display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
     ${abaGeral}${abasFaixa}
     <div style="flex:1"></div>
-    <div class="tsearch" style="min-width:200px;max-width:260px"><i class="ti ti-search" style="color:var(--text3)"></i><input type="text" placeholder="Buscar paciente…" oninput="_rankSearch=this.value;renderRankings()" value="${_rankSearch}"></div>
+    <div class="tsearch" style="min-width:200px;max-width:260px"><i class="ti ti-search" style="color:var(--text3)"></i><input type="text" placeholder="Buscar paciente…" oninput="_rankSearch=this.value;_dRenderRank()" value="${_rankSearch}"></div>
   </div>
 
   <!-- KPIs -->
@@ -3704,7 +3709,7 @@ function addPat(){
     streakShields:0       // U07: escudos de proteção
   });
   saveS();closeM('mPatient');showToast(`${name} cadastrado! 📱`);
-  if(cur==='patients')renderPats();else if(cur==='dash'){destroyCharts();renderDash();}
+  setTimeout(()=>{if(cur==='patients')renderPats();else if(cur==='dash'){destroyCharts();renderDash();}},100);
 }
 
 // ============================================================
@@ -4561,7 +4566,7 @@ function renderAlertasAdesao(){
     <!-- FILTROS -->
     <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
       ${['todos','alta','media','pendente','resolvido','inativo','risco','pagamento'].map(f=>`<button onclick="_alertFilter='${f}';renderAlertasAdesao()" style="padding:6px 13px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;border:1.5px solid ${_alertFilter===f?'var(--g600)':'var(--border)'};color:${_alertFilter===f?'#fff':'var(--text2)'};background:${_alertFilter===f?'var(--g600)':'#fff'}">${{todos:'Todos',alta:'🔴 Alta',media:'🟡 Média',pendente:'Pendente',resolvido:'Resolvidos',inativo:'Sem atividade',risco:'Em risco',pagamento:'Pagamento'}[f]||f}</button>`).join('')}
-      <div class="tsearch" style="flex:1;min-width:180px;max-width:260px"><i class="ti ti-search" style="color:var(--text3)"></i><input type="text" placeholder="Buscar paciente..." oninput="_alertSearch=this.value;renderAlertasAdesao()" value="${_alertSearch}"></div>
+      <div class="tsearch" style="flex:1;min-width:180px;max-width:260px"><i class="ti ti-search" style="color:var(--text3)"></i><input type="text" placeholder="Buscar paciente..." oninput="_alertSearch=this.value;_dRenderAlertas()" value="${_alertSearch}"></div>
     </div>
 
     <!-- TABELA -->
