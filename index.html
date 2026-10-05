@@ -174,10 +174,11 @@ button{cursor:pointer;border:none;background:none}
 @keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── BOTTOM NAV ── */
-.bnav-wrap{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--card);border-top:1px solid var(--border);display:flex;padding:6px 4px env(safe-area-inset-bottom,14px);z-index:30;backdrop-filter:blur(20px)}
-.bnav{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;border-radius:14px;color:var(--text3);font-size:0;transition:all .2s}
-.bnav i{font-size:22px;transition:all .2s}
-.bnav span{font-size:10px;font-weight:700;transition:all .2s}
+.bnav-wrap{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--card);border-top:1px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none;padding:6px 4px env(safe-area-inset-bottom,14px);z-index:30;backdrop-filter:blur(20px)}
+.bnav-wrap::-webkit-scrollbar{display:none}
+.bnav{flex:0 0 calc(100%/6);min-width:54px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;border-radius:14px;color:var(--text3);font-size:0;transition:all .2s}
+.bnav i{font-size:20px;transition:all .2s}
+.bnav span{font-size:9px;font-weight:700;transition:all .2s}
 .bnav.on{color:var(--g400)}
 .bnav.on i{filter:drop-shadow(0 0 6px var(--g400));transform:translateY(-1px)}
 
@@ -308,6 +309,32 @@ button{cursor:pointer;border:none;background:none}
 .t-name{font-size:11px;font-weight:700;color:#fff}
 .t-xp{font-size:10px;margin-top:2px;color:var(--text3);font-weight:700}
 .t-ck{position:absolute;top:7px;right:8px;font-size:12px;color:var(--g400)}
+
+/* ── COMUNIDADE ── */
+.com-header{padding:14px 18px 4px}
+.com-title{font-family:var(--font-d);font-size:22px}
+.com-sub{font-size:12px;color:var(--text3);margin-top:2px}
+.com-feed{display:flex;flex-direction:column;gap:0;padding:0}
+.com-card{background:var(--card);border-bottom:1px solid var(--border)}
+.com-card-head{display:flex;align-items:center;gap:11px;padding:13px 16px 8px}
+.com-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0}
+.com-meta{flex:1;min-width:0}
+.com-pname{font-size:14px;font-weight:700;color:var(--text)}
+.com-pmission{font-size:12px;color:var(--text3);margin-top:1px}
+.com-pdate{font-size:11px;color:var(--text3);opacity:.7}
+.com-img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+.com-reactions{display:flex;gap:6px;padding:10px 14px 13px;flex-wrap:wrap}
+.com-react{display:flex;align-items:center;gap:5px;padding:6px 11px;background:var(--bg2);border:1px solid var(--border);border-radius:20px;font-size:14px;cursor:pointer;transition:all .18s;user-select:none}
+.com-react:active{transform:scale(0.93)}
+.com-react.picked{background:rgba(0,230,118,.12);border-color:rgba(0,230,118,.35)}
+.com-react span{font-size:12px;font-weight:700;color:var(--text3)}
+.com-react.picked span{color:var(--g600)}
+.com-empty{text-align:center;padding:60px 20px;color:var(--text3)}
+.com-empty i{font-size:48px;display:block;margin-bottom:14px;opacity:.4}
+.com-empty p{font-size:14px;line-height:1.6}
+.com-empty b{color:var(--text)}
+.com-badge{background:rgba(0,230,118,.1);color:var(--g600);border:1px solid rgba(0,230,118,.2);border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700;flex-shrink:0}
+.com-own-badge{background:rgba(255,213,79,.13);color:var(--a800);border:1px solid rgba(255,213,79,.3);border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700;flex-shrink:0}
 
 /* ── PROFILE ── */
 .prof-hero{padding:30px 18px 22px;text-align:center;color:#fff;position:relative;overflow:hidden;transition:all .5s;background:linear-gradient(135deg,#0D1829,#152238);border-bottom:1px solid var(--border)}
@@ -558,10 +585,12 @@ button{cursor:pointer;border:none;background:none}
     <div class="screen" id="s-hall"><div id="hallC"></div></div>
     <div class="screen" id="s-ind"><div id="indC"></div></div>
     <div class="screen" id="s-wearable"><div id="wearableC"></div></div>
+  <div class="screen" id="s-comunidade"><div id="comunC"></div></div>
   </div>
   <div class="bnav-wrap">
     <button class="bnav on" data-s="home" onclick="go('home')"><i class="ti ti-home"></i><span>Início</span></button>
     <button class="bnav" data-s="missions" onclick="go('missions')"><i class="ti ti-check-circle"></i><span>Missões</span></button>
+    <button class="bnav" data-s="comunidade" onclick="go('comunidade')"><i class="ti ti-camera"></i><span>Comunidade</span></button>
     <button class="bnav" data-s="ranking" onclick="go('ranking')"><i class="ti ti-trophy"></i><span>Ranking</span></button>
     <button class="bnav" data-s="trophies" onclick="go('trophies')"><i class="ti ti-medal"></i><span>Troféus</span></button>
     <button class="bnav" data-s="profile" onclick="go('profile')"><i class="ti ti-user"></i><span>Perfil</span></button>
@@ -877,7 +906,7 @@ function go(name){
   document.querySelector(`.bnav[data-s="${name}"]`)?.classList.add('on');
   cur=name;document.getElementById('main').scrollTop=0;destroyCharts();
   ({home:rHome,missions:rMissions,ranking:rRanking,trophies:rTrophies,profile:rProfile,
-    checkin:rCheckin,events:rEvents,hall:rHall,ind:rInd,wearable:rWearable})[name]?.();
+    checkin:rCheckin,events:rEvents,hall:rHall,ind:rInd,wearable:rWearable,comunidade:rComunidade})[name]?.();
 }
 
 // ═══════════════════════════════════════════════
