@@ -1172,6 +1172,120 @@ function confirmPhoto(){
 }
 
 // ═══════════════════════════════════════════════
+// COMUNIDADE — mural de fotos das missões
+// ═══════════════════════════════════════════════
+const MISSION_LABELS={
+  train:'💪 Treino de força',
+  cardio:'🏃 Cardio',
+  steps:'👣 10 mil passos',
+  meal:'🥗 Refeição saudável',
+  water:'💧 Hidratação',
+  sleep:'🌙 Sono de qualidade',
+  stretch:'🧘 Alongamento',
+  default:'🎯 Missão concluída'
+};
+function rComunidade(){
+  refreshMe();
+  const wrap=document.getElementById('comunC');
+  if(!S||!ME){wrap.innerHTML='<div class="com-empty"><i class="ti ti-wifi-off"></i><p>Sem dados. Abra o app enquanto conectado.</p></div>';return;}
+
+  // Coletar todas as fotos de todos os pacientes
+  const allPhotos=[];
+  (S.patients||[]).forEach(p=>{
+    if(!p||!p.photos)return;
+    const av=AVC[p.color%AVC.length];
+    const isMe=p.id===ME.id;
+    Object.entries(p.photos).forEach(([key,src])=>{
+      if(!src||!src.startsWith('data:'))return;
+      // key formato: "2026-10-05_train"
+      const parts=key.split('_');
+      const dateStr=parts[0];
+      const missionId=parts.slice(1).join('_');
+      const missionLabel=MISSION_LABELS[missionId]||MISSION_LABELS.default;
+      allPhotos.push({p,av,isMe,dateStr,missionId,missionLabel,src,key});
+    });
+  });
+
+  // Ordenar: mais recentes primeiro
+  allPhotos.sort((a,b)=>b.dateStr.localeCompare(a.dateStr)||b.key.localeCompare(a.key));
+
+  if(!allPhotos.length){
+    wrap.innerHTML=`<div class="com-header"><div class="com-title">Comunidade</div><div class="com-sub">Fotos das missões</div></div>
+    <div class="com-empty">
+      <i class="ti ti-camera-off"></i>
+      <p>Nenhuma foto ainda.<br><b>Complete missões com foto</b><br>para aparecer aqui!</p>
+    </div>`;
+    return;
+  }
+
+  // Carregar reações salvas localmente
+  function getReacts(key){
+    try{return JSON.parse(localStorage.getItem('com_r_'+key)||'{}');}catch{return{};}
+  }
+  function saveReact(key,emoji){
+    const r=getReacts(key);
+    if(r[emoji]&&r[emoji].mine){delete r[emoji];if(Object.keys(r).length===0){localStorage.removeItem('com_r_'+key);}else{localStorage.setItem('com_r_'+key,JSON.stringify(r));}}
+    else{if(!r[emoji])r[emoji]={count:0,mine:false};r[emoji].count=Math.max(1,(r[emoji].count||0)+1);r[emoji].mine=true;localStorage.setItem('com_r_'+key,JSON.stringify(r));}
+    rComunidade();
+  }
+
+  function fmtDate(d){
+    const today=dk();const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);const yStr=yesterday.toISOString().slice(0,10);
+    if(d===today)return'Hoje';if(d===yStr)return'Ontem';
+    const dt=new Date(d+'T12:00:00');return dt.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});
+  }
+
+  const cardsHtml=allPhotos.map(({p,av,isMe,dateStr,missionLabel,src,key})=>{
+    const reacts=getReacts(key);
+    const emojiOpts=['🔥','💪','👏','❤️','😍'];
+    const reactHtml=emojiOpts.map(e=>{
+      const r=reacts[e];const cnt=r?.count||0;const mine=r?.mine||false;
+      return`<div class="com-react${mine?' picked':''}" onclick="event.stopPropagation();_comReact('${key}','${e}')">
+        ${e}<span>${cnt>0?cnt:''}</span></div>`;
+    }).join('');
+    return`<div class="com-card">
+      <div class="com-card-head">
+        <div class="com-av" style="background:${av[0]};color:${av[1]}">${ini(p.name)}</div>
+        <div class="com-meta">
+          <div class="com-pname">${p.name.split(' ')[0]} ${p.name.split(' ').slice(-1)[0]}</div>
+          <div class="com-pmission">${missionLabel}</div>
+          <div class="com-pdate">${fmtDate(dateStr)}</div>
+        </div>
+        ${isMe?`<div class="com-own-badge">✨ você</div>`:getBelt(p.xp).name?`<div class="com-badge">${getBelt(p.xp).name}</div>`:''}
+      </div>
+      <img class="com-img" src="${src}" alt="Foto de missão" loading="lazy">
+      <div class="com-reactions">${reactHtml}</div>
+    </div>`;
+  }).join('');
+
+  wrap.innerHTML=`
+    <div class="com-header">
+      <div class="com-title">Comunidade</div>
+      <div class="com-sub">${allPhotos.length} foto${allPhotos.length!==1?'s':''} · ${(S.patients||[]).filter(p=>p.photos&&Object.values(p.photos).some(v=>v&&v.startsWith('data:'))).length} atletas</div>
+    </div>
+    <div class="com-feed">${cardsHtml}</div>
+    <div style="height:8px"></div>`;
+}
+window._comReact=function(key,emoji){
+  try{
+    const data=JSON.parse(localStorage.getItem('com_r_'+key)||'{}');
+    if(data[emoji]&&data[emoji].mine){
+      data[emoji].count=Math.max(0,(data[emoji].count||1)-1);
+      data[emoji].mine=false;
+      if(data[emoji].count===0)delete data[emoji];
+    }else{
+      if(!data[emoji])data[emoji]={count:0,mine:false};
+      data[emoji].count=(data[emoji].count||0)+1;
+      data[emoji].mine=true;
+    }
+    if(Object.keys(data).length===0)localStorage.removeItem('com_r_'+key);
+    else localStorage.setItem('com_r_'+key,JSON.stringify(data));
+  }catch(e){}
+  if(typeof vibe==='function')vibe([15]);
+  rComunidade();
+};
+
+// ═══════════════════════════════════════════════
 // RANKING — top 10 + busca + ver mais + minha liga
 // ═══════════════════════════════════════════════
 function rRanking(){
